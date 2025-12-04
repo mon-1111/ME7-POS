@@ -1,0 +1,35 @@
+﻿Class ID (int),Class Name (str),Product,Price
+0,coffee_nescafe,Coffee (Nescafe),20
+1,coffee_kopiko,Coffee (Kopiko),15
+2,lucky-me-pancit-canton,Lucky Me Pancit Canton,14
+3,Coke-in-can,Coke (Can),30
+4,alaska_milk,Alaska Fresh Milk,28
+5,Century-Tuna,Century Tuna,38
+6,VCut-Spicy-Barbeque,Vcut Spicy Barbeque Flavor,20
+7,Selecta-Cornetto,Selecta Cornetto,35
+8,nestleyogurt,Nestle Yogurt,25
+9,Femme-Bathroom-Tissue,Femme Bathroom Tissue,20
+10,maya-champorado,Maya Champorado,15
+11,jnj-potato-chips,Jack 'n Jill Potato Chips,20
+12,Nivea-Deodorant,Nivea Deodorant,100
+13,UFC-Canned-Mushroom,UFC-Canned-Mushroom,35
+14,Libbys-Vienna-Sausage-can,Libby's Vienna Sausage (blue can),23
+15,Stik-O,Stik-O (Chocolate wafer stick),55
+16,nissin_cup_noodles,Nissin Cup Noodles,22
+17,dewberry-strawberry,Dewberry strawberry,18
+18,Smart-C,Smart C,22
+19,pineapple-juice-can,Pineapple juice (in can),70
+20,nestle_chuckie,Nestle Chuckie,48
+21,Delight-Probiotic-Drink,Delight Probiotic Drink,55
+22,Summit-Drinking-Water,Summit Drinking Water,25
+23,almond_milk,Almond Milk (almond breeze),90
+24,Piknik,Pik-nik,84
+25,Bactidol,Bactidol,85
+26,head&shoulders_shampoo,Head and Shoulder Shampoo,210
+27,irish-spring-soap,Irish Sping Soap,70
+28,c2_na_green,C2 na green (455/500ml),48
+29,colgate_toothpaste,Colgate Toothpaste,99
+30,555-sardines-tomato,555 Sardines (Tomato Flavor),45
+31,meadows_truffle_chips,Meadows Truffle Chips,150
+32,double-black,Johnnie Walker Double Black,1000
+33,NongshimCupNoodles,Nongshim Cup Noodles,65
