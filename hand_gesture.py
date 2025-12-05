@@ -1,32 +1,54 @@
 import cv2
-import mediapipe as mp
+import math
 
-from camera_service import CameraService
+# ---------------------------------------------------------------------
+# Try to import mediapipe.
+# On Jetson this may fail or be partially broken, so we guard it.
+# ---------------------------------------------------------------------
+try:
+    import mediapipe as mp
+    MP_AVAILABLE = True
+    print("[HandGestureService] Mediapipe loaded successfully.")
+except Exception as e:
+    mp = None
+    MP_AVAILABLE = False
+    print("[HandGestureService] Mediapipe NOT available, gestures disabled.")
+    print("  Reason:", e)
 
 
 class HandGestureService:
     """
     Uses MediaPipe Hands to classify a hand as 'open' or 'closed'
     based on how many fingers are extended.
+
+    On systems where Mediapipe cannot be imported (e.g. broken ARM build),
+    classify() will always return None so the main app does not crash.
     """
 
     def __init__(self):
+        self.enabled = MP_AVAILABLE
+
+        if not MP_AVAILABLE:
+            self.hands = None
+            return
+
         mp_hands = mp.solutions.hands
         self.hands = mp_hands.Hands(
             max_num_hands=1,
             min_detection_confidence=0.5,
             min_tracking_confidence=0.5,
         )
-        self.enabled = True
 
     def set_enabled(self, flag: bool):
-        self.enabled = flag
+        # allow external toggle, but only if mediapipe actually works
+        self.enabled = flag and MP_AVAILABLE
 
     def classify(self, frame):
         """
-        Return 'open', 'closed', or None using MediaPipe Hands.
+        Return 'open', 'closed', or None.
+        If Mediapipe is unavailable or disabled, returns None.
         """
-        if not self.enabled:
+        if not self.enabled or self.hands is None:
             return None
 
         image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -37,6 +59,7 @@ class HandGestureService:
 
         hand = result.multi_hand_landmarks[0].landmark
 
+        # same finger logic you had before
         finger_pairs = [
             (5, 8),     # index (MCP, TIP)
             (9, 12),    # middle
@@ -54,31 +77,27 @@ class HandGestureService:
         return "open" if extended_count >= 3 else "closed"
 
 
+# Optional standalone test (camera only). Not used by pos_system.py.
 if __name__ == "__main__":
-    cam = CameraService()
+    cam = cv2.VideoCapture(0)
     gesture = HandGestureService()
 
-    # Session toggle state
     session_open = False
-    phase = "WAIT_OPEN"   # WAIT_OPEN → WAIT_CLOSED → toggle
+    phase = "WAIT_OPEN"
 
     while True:
-        frame = cam.read_frame()
-        if frame is None:
+        ret, frame = cam.read()
+        if not ret:
             break
 
         label = gesture.classify(frame)
 
-        # ---- open → closed toggles session ----
         if label == "open" and phase == "WAIT_OPEN":
             phase = "WAIT_CLOSED"
-
         elif label == "closed" and phase == "WAIT_CLOSED":
             session_open = not session_open
             phase = "WAIT_OPEN"
-        # ---------------------------------------
 
-        # Draw only the session state
         session_text = "SESSION: OPEN" if session_open else "SESSION: CLOSED"
         cv2.putText(
             frame,
@@ -91,9 +110,7 @@ if __name__ == "__main__":
         )
 
         cv2.imshow("Session Toggle Gesture Test", frame)
-
-        key = cv2.waitKey(1) & 0xFF
-        if key == ord("q"):
+        if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
     cam.release()
