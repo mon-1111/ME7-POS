@@ -27,7 +27,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "..", "best.pt")  # adjust if needed
 
 # Confidence threshold for detections
-CONF_THRESHOLD = 0.9
+CONF_THRESHOLD = 0.85
 
 # =========================
 # Globals
