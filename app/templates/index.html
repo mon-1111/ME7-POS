@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Visual POS System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <style>
+      /* Sound toggle button in header (under session status) */
+      .sound-toggle {
+        margin-top: 8px;
+        border-radius: 999px;
+        border: none;
+        padding: 6px 14px;
+        background-color: #111827;
+        color: #f9fafb;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .sound-toggle span.icon {
+        font-size: 1rem;
+      }
+
+      .sound-toggle.disabled {
+        opacity: 0.6;
+        cursor: default;
+        box-shadow: none;
+      }
+
+      .header-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="header-left">
+          <h1>Visual POS System</h1>
+          <!-- subtitle removed -->
+        </div>
+        <div class="header-right">
+          <span class="session-status" id="session-status">
+            {{ session_status }}
+          </span>
+
+          <!-- Sound enable button now clearly visible in header -->
+          <button
+            id="enable-sound-button"
+            class="sound-toggle"
+            type="button"
+            title="Click once to enable beeps and voice feedback"
+          >
+            <span class="icon">🔊</span>
+            <span class="label">Enable sound</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main content -->
+      <main class="app-main">
+        <!-- LEFT: Live camera feed -->
+        <section class="camera-section">
+          <h2>Live Camera Feed</h2>
+          <div class="camera-frame">
+            <img
+              id="camera-stream"
+              src="/video_feed"
+              alt="Live camera feed"
+              class="camera-img"
+            />
+          </div>
+
+          <div class="camera-instructions">
+            <p><strong>Hand gestures:</strong></p>
+            <ul
+              style="margin-left: 1.2rem; margin-top: 4px; font-size: 0.85rem"
+            >
+              <li>
+                🖐️ ➜ ✊
+                <strong>(open then closed hand)</strong> — toggle the session
+                <em>ON</em>
+              </li>
+              <li>Repeat 🖐️ ➜ ✊ — toggle the session <em>OFF</em></li>
+            </ul>
+            <p style="margin-top: 8px; font-size: 0.85rem">
+              Place items in front of the camera
+              <strong>one at a time</strong> while the session is active.
+            </p>
+            <p style="margin-top: 8px; font-size: 0.8rem; color: #6b7280">
+              Click the <strong>🔊 Enable sound</strong> button in the header
+              once to allow beeps and voice feedback (browser autoplay rule).
+            </p>
+          </div>
+        </section>
+
+        <!-- RIGHT: POS Panel -->
+        <section class="pos-section">
+          <h2>POS Receipt</h2>
+
+          <div class="receipt-container">
+            <table class="receipt-table">
+              <thead>
+                <tr>
+                  <th class="col-item">Item</th>
+                  <th class="col-qty">Qty</th>
+                  <th class="col-price">Price</th>
+                  <th class="col-subtotal">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody id="receipt-body">
+                {% if items and items|length > 0 %} {% for item in items %}
+                <tr>
+                  <td>{{ item.name }}</td>
+                  <td style="text-align: right">{{ item.quantity }}</td>
+                  <td style="text-align: right">
+                    ₱{{ "%.2f"|format(item.unit_price) }}
+                  </td>
+                  <td style="text-align: right">
+                    ₱{{ "%.2f"|format(item.subtotal) }}
+                  </td>
+                </tr>
+                {% endfor %} {% else %}
+                <tr class="empty-row">
+                  <td colspan="4">No items scanned yet</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="total-container">
+            <div class="total-label">TOTAL</div>
+            <div class="total-value" id="total-value">
+              ₱{{ "%.2f"|format(total_amount) }}
+            </div>
+          </div>
+
+          <div class="session-summary" id="session-summary">
+            <!-- End-of-session summary appears here -->
+          </div>
+
+          <div class="pos-footer">
+            <p>
+              This POS updates automatically when items are recognized and when
+              sessions start/end based on hand gestures.
+            </p>
+          </div>
+        </section>
+      </main>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <span>AI 231 ME7</span>
+      </footer>
+    </div>
+
+    <!-- One sound file reused for item + start/end -->
+    <audio
+      id="sound-item"
+      src="/static/sounds/checkout_sound.wav"
+      preload="auto"
+    ></audio>
+    <audio
+      id="sound-start"
+      src="/static/sounds/checkout_sound.wav"
+      preload="auto"
+    ></audio>
+    <audio
+      id="sound-end"
+      src="/static/sounds/checkout_sound.wav"
+      preload="auto"
+    ></audio>
+
+    <script src="/static/js/app.js"></script>
+  </body>
+</html>
