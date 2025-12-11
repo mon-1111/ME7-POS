@@ -2,11 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Visual POS System</title>
+    <title>OrangeCart POS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/static/css/style.css" />
+
     <style>
-      /* Sound toggle button in header (under session status) */
+      /* Sound toggle button */
       .sound-toggle {
         margin-top: 8px;
         border-radius: 999px;
@@ -22,14 +23,9 @@
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
       }
 
-      .sound-toggle span.icon {
-        font-size: 1rem;
-      }
-
       .sound-toggle.disabled {
-        opacity: 0.6;
+        opacity: 0.5;
         cursor: default;
-        box-shadow: none;
       }
 
       .header-right {
@@ -38,74 +34,56 @@
         align-items: flex-end;
         gap: 4px;
       }
+
+      /* Logo styling */
+      .store-logo {
+        font-size: 2.4rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .store-logo .cart-icon {
+        font-size: 2.3rem;
+      }
     </style>
   </head>
+
   <body>
     <div class="app-container">
-      <!-- Header -->
+      <!-- ======================
+           HEADER
+      ======================= -->
       <header class="app-header">
         <div class="header-left">
-          <h1>Visual POS System</h1>
-          <!-- subtitle removed -->
+          <!-- Logo -->
+          <div class="store-logo">
+            <span class="cart-icon">🛒</span> ORANGECART
+          </div>
         </div>
+
         <div class="header-right">
           <span class="session-status" id="session-status">
             {{ session_status }}
           </span>
 
-          <!-- Sound enable button now clearly visible in header -->
-          <button
-            id="enable-sound-button"
-            class="sound-toggle"
-            type="button"
-            title="Click once to enable beeps and voice feedback"
-          >
+          <button id="enable-sound-button" class="sound-toggle" type="button">
             <span class="icon">🔊</span>
             <span class="label">Enable sound</span>
           </button>
         </div>
       </header>
 
-      <!-- Main content -->
+      <!-- ======================
+           MAIN CONTENT
+      ======================= -->
       <main class="app-main">
-        <!-- LEFT: Live camera feed -->
-        <section class="camera-section">
-          <h2>Live Camera Feed</h2>
-          <div class="camera-frame">
-            <img
-              id="camera-stream"
-              src="/video_feed"
-              alt="Live camera feed"
-              class="camera-img"
-            />
-          </div>
-
-          <div class="camera-instructions">
-            <p><strong>Hand gestures:</strong></p>
-            <ul
-              style="margin-left: 1.2rem; margin-top: 4px; font-size: 0.85rem"
-            >
-              <li>
-                🖐️ ➜ ✊
-                <strong>(open then closed hand)</strong> — toggle the session
-                <em>ON</em>
-              </li>
-              <li>Repeat 🖐️ ➜ ✊ — toggle the session <em>OFF</em></li>
-            </ul>
-            <p style="margin-top: 8px; font-size: 0.85rem">
-              Place items in front of the camera
-              <strong>one at a time</strong> while the session is active.
-            </p>
-            <p style="margin-top: 8px; font-size: 0.8rem; color: #6b7280">
-              Click the <strong>🔊 Enable sound</strong> button in the header
-              once to allow beeps and voice feedback (browser autoplay rule).
-            </p>
-          </div>
-        </section>
-
-        <!-- RIGHT: POS Panel -->
-        <section class="pos-section">
-          <h2>POS Receipt</h2>
+        <!-- LEFT PANEL — Checkout -->
+        <section class="pos-section" id="pos-section">
+          <h2>Checkout</h2>
 
           <div class="receipt-container">
             <table class="receipt-table">
@@ -117,6 +95,7 @@
                   <th class="col-subtotal">Subtotal</th>
                 </tr>
               </thead>
+
               <tbody id="receipt-body">
                 {% if items and items|length > 0 %} {% for item in items %}
                 <tr>
@@ -145,26 +124,61 @@
             </div>
           </div>
 
-          <div class="session-summary" id="session-summary">
-            <!-- End-of-session summary appears here -->
+          <div class="session-summary" id="session-summary"></div>
+        </section>
+
+        <!-- RIGHT PANEL — Scan Items -->
+        <section class="camera-section">
+          <h2>Scan Items</h2>
+
+          <div class="camera-frame">
+            <img
+              id="camera-stream"
+              src="/video_feed"
+              alt="Scan Items"
+              class="camera-img"
+            />
           </div>
 
-          <div class="pos-footer">
-            <p>
-              This POS updates automatically when items are recognized and when
-              sessions start/end based on hand gestures.
+          <div class="camera-instructions">
+            <p><strong>Hand gestures:</strong></p>
+            <ul
+              style="margin-left: 1.2rem; margin-top: 4px; font-size: 0.85rem"
+            >
+              <li>
+                🖐️ ➜ ✊ <strong>(open then closed hand)</strong> — start session
+              </li>
+              <li>Repeat 🖐️ ➜ ✊ — end session</li>
+            </ul>
+
+            <p style="margin-top: 8px; font-size: 0.8rem; color: #6b7280">
+              Click <strong>Enable sound</strong> once to activate beeps and
+              voice.
             </p>
           </div>
         </section>
       </main>
 
-      <!-- Footer -->
-      <footer class="app-footer">
-        <span>AI 231 ME7</span>
-      </footer>
+      <!-- Receipt popup after checkout -->
+      <div id="receipt-modal" class="receipt-modal receipt-modal-hidden">
+        <div class="receipt-modal-content">
+          <h3>Checkout complete 🎉</h3>
+          <p class="receipt-modal-line">
+            Your total is <span id="receipt-modal-total">₱0.00</span>.
+          </p>
+          <p class="receipt-modal-sub">
+            Click <strong>View receipt</strong> to jump to your OrangeCart
+            checkout.
+          </p>
+          <div class="receipt-modal-buttons">
+            <button id="view-receipt-button" type="button">View receipt</button>
+            <button id="close-receipt-button" type="button">Close</button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- One sound file reused for item + start/end -->
+    <!-- Audio -->
     <audio
       id="sound-item"
       src="/static/sounds/checkout_sound.wav"
